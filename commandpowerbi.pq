@@ -20,6 +20,29 @@ section commandpowerbi;
 [DataSource.Kind="commandpowerbi", Publish="commandpowerbi.Publish"]
 shared commandpowerbi.Contents = Value.ReplaceType(commandpowerbiImpl, commandpowerbiType);
 
+// Data Source Kind description
+commandpowerbi = [
+    Authentication = [
+        Anonymous = [],                                     // Anonymous is used for OAuth implementation
+        UsernamePassword = [],                              // UsernamePassword is used for Basic auth implementation
+        Windows = [ SupportsAlternateCredentials = true ]   // Windows is used for AD auth implementation
+    ]
+];
+
+// Data Source UI publishing description
+commandpowerbi.Publish = [
+    Beta = true,
+    Category = "Other",
+    ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
+    LearnMoreUrl = "https://powerbi.microsoft.com/",
+    SourceImage = commandpowerbi.Icons,
+    SourceTypeImage = commandpowerbi.Icons
+];
+
+commandpowerbi.Icons = [
+    Icon16 = { Extension.Contents("keyfactor-command-icon-16.png"), Extension.Contents("keyfactor-command-icon-20.png"), Extension.Contents("keyfactor-command-icon-24.png"), Extension.Contents("keyfactor-command-icon-32.png") },
+    Icon32 = { Extension.Contents("keyfactor-command-icon-32.png"), Extension.Contents("keyfactor-command-icon-40.png"), Extension.Contents("keyfactor-command-icon-48.png"), Extension.Contents("keyfactor-command-icon-64.png") }
+];
 commandpowerbiType = type function () as table meta [
         Documentation.Name = "Keyfactor Command Power BI Connector",
         Documentation.LongDescription = "A set of functions to call Keyfactor Command API endpoints to return data for analysis."
@@ -31,8 +54,9 @@ commandpowerbiImpl = () =>
         source = #table (
             {"Name", "Key", "Data", "ItemKind", "ItemName", "IsLeaf"},
             {
-                {"GetCertificates", "GetCertificates", commandpowerbi.GetCertificates, "Function", "GetCertificates", true},
-                {"GetSSLNetworks", "GetSSLNetworks", commandpowerbi.GetSSLNetworks, "Function", "GetSSLNetworks", true}
+                {"Get Certificates", "GetCertificates", commandpowerbi.GetCertificates, "Function", "GetCertificates", true},
+                {"Get SSL Networks", "GetSSLNetworks", commandpowerbi.GetSSLNetworks, "Function", "GetSSLNetworks", true},
+                {"Get SSL Endpoints", "GetSSLEndpoints", commandpowerbi.GetSSLEndpoints, "Function", "GetSSLEndpoints", true}
             }
         ),
         navTable = Table.ToNavigationTable(source, {"Name"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
@@ -215,7 +239,7 @@ GetCertsPage = (url as text, claimsToken as text, pageSize as number, includeRev
         expandAll meta [NextPage = nextPage];
 
 //
-// SSL
+// SSL Networks
 // 
 [Datasource.Kind = "commandpowerbi"]
 shared commandpowerbi.GetSSLNetworks = Value.ReplaceType(GetSSLNetworks, GetSSLNetworksType);
@@ -306,36 +330,111 @@ GetSSLNetworksPage = (url as text, claimsToken as text, pageSize as number, Quer
         expandAll = if Table.IsEmpty(asTable) then 
                         // Create an empty table, which creates a null row
                         // While this is not desireable it is required since the total number of records is unknown
-                        #table({"NetworkId", "Name", "AgentPoolName", "AgentPoolId", "Description", "Enabled", "DiscoverSchedule"}, {})
+                        #table({"NetworkId", "Name", "AgentPoolName", "AgentPoolId", "Description", "Enabled", "DiscoverSchedule", "MonitorSchedule", "DiscoverPercentComplete", "MonitorPercentComplete", "DiscoverStatus", "MonitorStatus", "DiscoverLastScanned", "MonitorLastScanned", "SslAlertRecipients", "GetRobots", "DiscoverTimeoutMs", "MonitorTimeoutMs", "ExpirationAlertDays", "DiscoverJobParts", "MonitorJobParts", "QuietHours", "BlackoutStart", "BlackoutEnd"}, {})
                     else 
-                        Table.ExpandRecordColumn(asTable, "Column1", {"NetworkId", "Name", "AgentPoolName", "AgentPoolId", "Description", "Enabled", "DiscoverSchedule"}, 
-                            {"NetworkId", "Name", "AgentPoolName", "AgentPoolId", "Description", "Enabled", "DiscoverSchedule"})
+                        Table.ExpandRecordColumn(asTable, "Column1", {"NetworkId", "Name", "AgentPoolName", "AgentPoolId", "Description", "Enabled", "DiscoverSchedule", "MonitorSchedule", "DiscoverPercentComplete", "MonitorPercentComplete", "DiscoverStatus", "MonitorStatus", "DiscoverLastScanned", "MonitorLastScanned", "SslAlertRecipients", "GetRobots", "DiscoverTimeoutMs", "MonitorTimeoutMs", "ExpirationAlertDays", "DiscoverJobParts", "MonitorJobParts", "QuietHours", "BlackoutStart", "BlackoutEnd"}, 
+                            {"NetworkId", "Name", "AgentPoolName", "AgentPoolId", "Description", "Enabled", "DiscoverSchedule", "MonitorSchedule", "DiscoverPercentComplete", "MonitorPercentComplete", "DiscoverStatus", "MonitorStatus", "DiscoverLastScanned", "MonitorLastScanned", "SslAlertRecipients", "GetRobots", "DiscoverTimeoutMs", "MonitorTimeoutMs", "ExpirationAlertDays", "DiscoverJobParts", "MonitorJobParts", "QuietHours", "BlackoutStart", "BlackoutEnd"})
     in
         expandAll meta [NextPage = nextPage];
 
-// Data Source Kind description
-commandpowerbi = [
-    Authentication = [
-        Anonymous = [],                                     // Anonymous is used for OAuth implementation
-        UsernamePassword = [],                              // UsernamePassword is used for Basic auth implementation
-        Windows = [ SupportsAlternateCredentials = true ]   // Windows is used for AD auth implementation
-    ]
-];
+//
+// SSL Endpoints
+//
+[Datasource.Kind = "commandpowerbi"]
+shared commandpowerbi.GetSSLEndpoints = Value.ReplaceType(GetSSLEndpoints, GetSSLEndpointsType);
 
-// Data Source UI publishing description
-commandpowerbi.Publish = [
-    Beta = true,
-    Category = "Other",
-    ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
-    LearnMoreUrl = "https://powerbi.microsoft.com/",
-    SourceImage = commandpowerbi.Icons,
-    SourceTypeImage = commandpowerbi.Icons
-];
+GetSSLEndpointsType = 
+    type function (    
+    ApiUrl as (
+        type text meta [
+            Documentation.FieldCaption = "Keyfactor API URI",
+            Documentation.FieldDescription = "URI pointing to the Keyfactor Command API",
+            Documentation.SampleValues = {"https://keyfactor.company.com/KeyfactorAPI/"}
+        ]
+    ),
+    optional ClaimToken as (
+        type text meta [
+            Documentation.FieldCaption = "Claim Token (OAuth only)",
+            Documentation.FieldDescription = "Currently valid claim token - only required for Anonymous->Claims Authentication",
+            Documentation.SampleValues = {"abcdefg12345678"}
+        ]
+    ),
+    optional PageSize as (
+        type number meta [
+            Documentation.FieldCaption = "Page Size",
+            Documentation.FieldDescription = "Maximum number of records to be returned from a single request",
+            Documentation.SampleValues = {"1000"}
+        ]
+    ),
+    optional Query as (
+        type text meta [
+            Documentation.FieldCaption = "Query",
+            Documentation.FieldDescription = "Optional query to filter SSL Endpoints",
+            Documentation.SampleValues = {"field1 -eq value1 AND field2 -gt value2"}
+        ]
+    )) as table
+    meta
+    [
+        Documentation.Name = "KeyfactorCommand.GetSSLEndpoints",
+        Documentation.LongDescription = "Return SSL endpoints matching the provided criteria"
+    ];
 
-commandpowerbi.Icons = [
-    Icon16 = { Extension.Contents("keyfactor-command-icon-16.png"), Extension.Contents("keyfactor-command-icon-20.png"), Extension.Contents("keyfactor-command-icon-24.png"), Extension.Contents("keyfactor-command-icon-32.png") },
-    Icon32 = { Extension.Contents("keyfactor-command-icon-32.png"), Extension.Contents("keyfactor-command-icon-40.png"), Extension.Contents("keyfactor-command-icon-48.png"), Extension.Contents("keyfactor-command-icon-64.png") }
-];
+// Gets all SSL endpoints according to the provided parameters
+GetSSLEndpoints = 
+    (ApiUrl as text, optional ClaimsToken as text, optional PageSize as number, optional Query as text) as table =>
+    Table.GenerateByPage(
+        (previous) =>
+            let
+                // Process optional variables and provide default values if null
+                apiBase = if Text.EndsWith(ApiUrl, "/") then ApiUrl else ApiUrl & "/",
+                returnLimit = if PageSize <> null then PageSize else 1000,
+                queryString = if Query <> null then "&QueryString=" & Uri.EscapeDataString(Query) else "",
+                claim = if ClaimsToken <> null then ClaimsToken else "",
+
+                // This is the first page of data if 'previous' is null
+                nextPage = if (previous = null) then 1 else Value.Metadata(previous)[NextPage]?,
+
+                // All records have been processed if 'nextPage' was set to null by the previous call
+                page = if (nextPage <> null) then 
+                        // Retrieve the next page of data
+                        GetSSLEndpointsPage(apiBase, claim, returnLimit, queryString, nextPage) 
+                       else null
+            in
+                page
+    );
+
+// Gets an individual page of SSL endpoint records according to the page size
+GetSSLEndpointsPage = (url as text, claimsToken as text, pageSize as number, Query as text, page as number) as table =>
+    let
+        // Only attempt to add an authorization header if a claim token was provided
+        RequestHeaders = if claimsToken <> "" then [#"Authorization"="Bearer " & claimsToken] else [],
+
+        // Construct the query & querystring and call the certificates endpoint
+        source = Web.Contents(url & "SSL?PageReturned=" 
+            & Number.ToText(page) 
+            & "&ReturnLimit=" 
+            & Number.ToText(pageSize) 
+            & "&QueryString="
+            & Query 
+            & "&verbose=0", 
+            [Headers=RequestHeaders]), 
+        
+        // Process the results into a json object
+        json = Json.Document(source),
+        asTable = Table.FromList(json, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+
+        // Determine if the end of the results has been reached if no records are returned
+        nextPage = if Table.IsEmpty(asTable) then null else page + 1,
+
+        expandAll = if Table.IsEmpty(asTable) then 
+                        // Create an empty table, which creates a null row
+                        // While this is not desireable it is required since the total number of records is unknown
+                        #table({"EndpointId", "ReverseDNS", "SNIName", "IpAddress", "Port", "CertificateFound", "AgentPoolName", "NetworkName",  "MonitorStatus", "CertificateCN", "Reviewed"}, {})
+                    else 
+                        Table.ExpandRecordColumn(asTable, "Column1", {"EndpointId", "ReverseDNS", "SNIName", "IpAddress", "Port", "CertificateFound", "AgentPoolName",  "MonitorStatus", "CertificateCN", "Reviewed"}, 
+                            {"EndpointId", "ReverseDNS", "SNIName", "IpAddress", "Port", "CertificateFound", "AgentPoolName",  "MonitorStatus", "CertificateCN", "Reviewed"})
+    in
+        expandAll meta [NextPage = nextPage];
 
 //
 // Common functions
