@@ -22,9 +22,9 @@ A few steps will need to be completed prior to using the connector:
 3. Search for ‘Keyfactor’ or click on ‘Other’ and locate the connector and click on ‘Connector’
 4. If this is the first use the authentication dialog will be displayed
 
-> Use Anonymous for Claims authentication and the token can be provided in the navigator function
+> Use Anonymous for Claims authentication and the token can be provided in the navigator function.
 
-> Previous authentication credentials can be cleared by selecting ‘Data source settings’ from the ‘Transform data’ method and click on ‘Clear Permissions’
+> Previous authentication credentials can be cleared by selecting ‘Data source settings’ from the ‘Transform data’ method and click on ‘Clear Permissions’.
 
 6. The ‘Navigator’ dialog will then be displayed showing the available functions, which by default are:
   - Get Certificates - Calls the Keyfactor Command API ‘Certificates' endpoint
@@ -34,7 +34,7 @@ A few steps will need to be completed prior to using the connector:
 8. The ‘Claim Token’ is only needed when ‘Anonymous’ is selected for authentication to utilize OAuth
 9. Enter the desired parameters, using the associated API endpoint documentation as a guide and click on the ‘Apply’ button
 
-> In most cases ‘Transform Data’ should be selected as the data will contain sub-tables and sub-records that will need to be manipulated into the desired data format
+> In most cases ‘Transform Data’ should be selected as the data will contain sub-tables and sub-records that will need to be manipulated into the desired data format.
 
 ## References
 - [Power BI Custom Connector Tutorial](https://learn.microsoft.com/en-us/power-query/samples/trippin/readme)
