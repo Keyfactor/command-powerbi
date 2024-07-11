@@ -1,6 +1,9 @@
 # Keyfactor Command Power BI Connector
 ## Summary
 A common use case is to export certificate data from Command and import into Power BI or Excel for customized reporting and analysis.  A Power BI Custom Connector has been created to facilitate this use case.  The code is hosted and can be freely modified as desired to enhance functionality.
+
+> The connector obtains data via the Keyfactor Command API. Retrieving large amounts of data could impact performance of the Command system.  Care should be taken during development and usage to ensure optimal system performance. 
+
 ## Preparing for Usage
 A few steps will need to be completed prior to using the connector:
 1. Install the Power BI Desktop: Power BI Desktop
@@ -12,16 +15,16 @@ A few steps will need to be completed prior to using the connector:
 7. Copy the commandpowerbi.mez into the directory outlined in step #2
 
 ## Using the Connector
-**NOTE: Some steps below relating to specific navigator functions assume the default connector is being used.**
+> Some steps below relating to specific navigator functions assume the default connector is being used.
 
 1. Open Power BI
 2. Open the data connector dialog using either selecting ‘Get data from other sources’ from the home screen or ‘Get data’ and ‘More…’ from the workspace
 3. Search for ‘Keyfactor’ or click on ‘Other’ and locate the connector and click on ‘Connector’
 4. If this is the first use the authentication dialog will be displayed
 
-**NOTE: Use Anonymous for Claims authentication and the token can be provided in the navigator function**
+> Use Anonymous for Claims authentication and the token can be provided in the navigator function
 
-**NOTE: Previous authentication credentials can be cleared by selecting ‘Data source settings’ from the ‘Transform data’ method and click on ‘Clear Permissions’**
+> Previous authentication credentials can be cleared by selecting ‘Data source settings’ from the ‘Transform data’ method and click on ‘Clear Permissions’
 
 6. The ‘Navigator’ dialog will then be displayed showing the available functions, which by default are:
   - Get Certificates - Calls the Keyfactor Command API ‘Certificates' endpoint
@@ -31,7 +34,7 @@ A few steps will need to be completed prior to using the connector:
 8. The ‘Claim Token’ is only needed when ‘Anonymous’ is selected for authentication to utilize OAuth
 9. Enter the desired parameters, using the associated API endpoint documentation as a guide and click on the ‘Apply’ button
 
-**NOTE: In most cases ‘Transform Data’ should be selected as the data will contain sub-tables and sub-records that will need to be manipulated into the desired data format**
+> In most cases ‘Transform Data’ should be selected as the data will contain sub-tables and sub-records that will need to be manipulated into the desired data format
 
 ## References
 - [Power BI Custom Connector Tutorial](https://learn.microsoft.com/en-us/power-query/samples/trippin/readme)
