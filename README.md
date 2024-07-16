@@ -7,7 +7,7 @@ A common use case is to export certificate data from Command and import into Pow
 ## Preparing for Usage
 A few steps will need to be completed prior to using the connector:
 1. Install the Power BI Desktop: Power BI Desktop
-2. Follow the steps in the following article to ensure the directory and Power BI settings are in place: [Power BI Connector Extensibility](https://www.microsoft.com/en-us/power-platform/products/power-bi/desktop)
+2. Follow the steps in the following article to ensure the directory and Power BI settings are in place: [Power BI Connector Extensibility]([https://www.microsoft.com/en-us/power-platform/products/power-bi/desktop](https://learn.microsoft.com/en-us/power-bi/connect-data/desktop-connector-extensibility))
 3. Install Visual Studio Code: [Visual Studio Code](https://code.visualstudio.com/)
 4. Install the Power Query SDK: [Power Query SDK on Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=PowerQuery.vscode-powerquery-sdk)
 5. Clone the repository onto the local computer
